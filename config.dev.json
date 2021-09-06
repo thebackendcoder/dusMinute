@@ -1,0 +1,4 @@
+{
+    "dbString":"mongodb+srv://myuser:fathermother@learningcluster.6hufy.mongodb.net/myUser?retryWrites=true&w=majority",
+    "jwtSecret": "ksiufwifckjdsfcgeudgfciwdknjfuhuuhuhuh"
+}
