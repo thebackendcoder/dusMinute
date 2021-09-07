@@ -9,12 +9,17 @@ const model = require('./mongoSchema/mongoSchemas');
 const cors = require('cors');
 
 
-const env = process.env.NODE_ENV || 'dev';
+const env = process.env.NODE_ENV || 'local';
 const port = process.env.PORT || 3000;
 dotenvJSON({ path: `./config.${env}.json` });
 const { jwtSecret } = process.env;
 
 app.use(bodyParser.json());
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }))
+
+app.set('view engine', 'ejs');
+
 const { dbString } = process.env;
 
 (async function () {
@@ -171,6 +176,80 @@ app.post('/updateUserProfile', async function (req, res) {
         })
     }
 })
+
+
+app.post('/forgotPassword', async function (req, res) {
+
+    const { email } = req.body;
+    const user = await model.credModel.findOne({ email }).lean();
+    if (!user) {
+        res.status(404).json({ message: 'user doesnt exists' });
+    }
+    else {
+        const newSecret = `${jwtSecret}-${user.password}`;
+        const forgotToken = jwt.sign({
+            username: user.email,
+            password: user.password
+        }, newSecret)
+
+        const oneTimeLink = `${process.env.baseUrl}/resetPassword/${user._id}/${forgotToken}`
+        // I can send the Email using AWS SES sandbox technique but as of now i am sending the one time link;
+        res.send(oneTimeLink);
+    }
+
+})
+
+
+app.get('/resetPassword/:id/:token', async function (req, res) {
+
+    const { id, token } = req.params;
+    console.log("the token is ", token);
+    try {
+        const user = await model.credModel.findOne({ _id: id }).lean();
+        console.log(user);
+        const secretCode = `${jwtSecret}-${user.password}`;
+        const decodeBody = jwt.verify(token, secretCode);
+        console.log(decodeBody);
+        res.render('passwordreset');
+    } catch (err) {
+        res.status(400).json(err);
+    }
+
+})
+
+app.post('/resetPassword/:id/:token', async function (req, res) {
+
+
+    const { id, token } = req.params;
+    console.log(id);
+    console.log("the req body is ", req.body);
+    let { password, password2 } = req.body;
+    try {
+        const user = await model.credModel.findOne({ _id: id }).lean();
+        console.log("user is__________", user);
+        const secretCode = `${jwtSecret}-${user.password}`;
+        const decodeBody = jwt.verify(token, secretCode);
+        password2 = await bcrypt.hash(password, 10);
+
+        console.log("the password isssssssssssss", password2)
+        const dbResponse = await model.credModel.updateOne({ _id: id }, {
+            $set: {
+                password: password2
+            }
+        })
+        
+        res.status(200).json({
+            "message": "password successfully changed"
+        })
+    }
+    catch (err) {
+        res.status(400).json(err);
+    }
+
+})
+
+
+
 
 
 
