@@ -6,6 +6,7 @@ const dotenvJSON = require('dotenv-json');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const model = require('./mongoSchema/mongoSchemas');
+const cors = require('cors');
 
 
 const env = process.env.NODE_ENV || 'dev';
@@ -24,6 +25,9 @@ const { dbString } = process.env;
         });
     }));
 })();
+
+app.disable('x-powered-by');
+app.use(cors());
 
 app.post('/registerUser', async function (req, res) {
     console.log(req.body);
