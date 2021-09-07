@@ -56,7 +56,6 @@ app.post('/registerUser', async function (req, res) {
     }
 })
 
-
 app.post('/login', async function (req, res) {
     const { email, password } = req.body;
     const user = await model.credModel.findOne({ email }).lean();
@@ -82,7 +81,6 @@ app.post('/login', async function (req, res) {
     }
 })
 
-
 app.post('/setUserProfile', async function (req, res) {
     try {
         let { token, name, age } = req.body;
@@ -94,12 +92,106 @@ app.post('/setUserProfile', async function (req, res) {
             age,
             userId,
         })
+        res.status(200).json({
+            "message": "profile succesfully created"
+        })
         console.log(dbResponse);
     }
     catch (err) {
-        console.log(err)
+        if (err.message === 'invalid signature') {
+            res.status(400).json({
+                message: 'in valid token'
+            })
+        }
+        if (err.message === 'jwt expired') {
+            res.status(400).json({
+                message: 'token Expired'
+            })
+        } else {
+            res.status(400).json({
+                message: err
+            })
+        }
     }
 })
+
+app.get('/getUserProfile', async function (req, res) {
+
+    const token = req.query.token;
+    console.log(typeof (token));
+    try {
+        const user = jwt.verify(token, jwtSecret);
+        const userId = user.id;
+        // getting the user Profile 
+        const userProfile = await model.profileModel.findOne({ userId }).lean();
+        res.status(200).json({
+            userProfile
+        })
+    }
+    catch (err) {
+        if (err.message === 'invalid signature') {
+            res.status(400).json({
+                message: 'in valid token'
+            })
+        }
+        if (err.message === 'jwt expired') {
+            res.status(400).json({
+                message: 'token Expired'
+            })
+        } else {
+            res.status(400).json({
+                message: err
+            })
+        }
+    }
+})
+
+app.post('/updateUserProfile', async function (req, res) {
+
+    console.log("hello")
+
+    const { token, age, name } = req.body;
+    const user = jwt.verify(token, jwtSecret);
+    const userId = user.id
+    try {
+        const resp = await model.profileModel.updateOne({ userId }, {
+            $set: {
+                name, age
+            }
+        })
+        res.status(200).json({
+            message: "profile successfully updated"
+        })
+        console.log(resp);
+    }
+    catch (err) {
+        if (err.message === 'invalid signature') {
+            res.status(400).json({
+                message: 'in valid token'
+            })
+        }
+        if (err.message === 'jwt expired') {
+            res.status(400).json({
+                message: 'token Expired'
+            })
+        } else {
+            res.status(400).json({
+                message: err
+            })
+        }
+    }
+})
+
+
+
+
+
+
+
+
+
+
+
 
 
 
