@@ -1,0 +1,20 @@
+branch-defaults:
+  main:
+    environment: dusMinute-env
+    group_suffix: null
+global:
+  application_name: dusMinute
+  branch: null
+  default_ec2_keyname: null
+  default_platform: Node.js
+  default_region: ap-south-1
+  include_git_submodules: true
+  instance_profile: null
+  platform_name: null
+  platform_version: null
+  profile: null
+  repository: null
+  sc: git
+  workspace_type: Application
+
+  #this is a defalt configurations  We can perform and adjust Based on our requirement

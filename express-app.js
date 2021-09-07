@@ -1,5 +1,4 @@
 const express = require('express');
-
 const app = express();
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
@@ -148,8 +147,6 @@ app.get('/getUserProfile', async function (req, res) {
 
 app.post('/updateUserProfile', async function (req, res) {
 
-    console.log("hello")
-
     const { token, age, name } = req.body;
     const user = jwt.verify(token, jwtSecret);
     const userId = user.id
@@ -165,20 +162,9 @@ app.post('/updateUserProfile', async function (req, res) {
         console.log(resp);
     }
     catch (err) {
-        if (err.message === 'invalid signature') {
-            res.status(400).json({
-                message: 'in valid token'
-            })
-        }
-        if (err.message === 'jwt expired') {
-            res.status(400).json({
-                message: 'token Expired'
-            })
-        } else {
-            res.status(400).json({
-                message: err
-            })
-        }
+        res.status(400).json({
+            message: err
+        })
     }
 })
 
