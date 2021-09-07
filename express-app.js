@@ -9,7 +9,7 @@ const model = require('./mongoSchema/mongoSchemas');
 const cors = require('cors');
 
 
-const env = process.env.NODE_ENV || 'local';
+const env =  process.env.NODE_ENV || 'dev';
 const port = process.env.PORT || 3000;
 dotenvJSON({ path: `./config.${env}.json` });
 const { jwtSecret } = process.env;
@@ -247,8 +247,6 @@ app.post('/resetPassword/:id/:token', async function (req, res) {
     }
 
 })
-
-
 
 
 
